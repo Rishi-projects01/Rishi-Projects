@@ -1,2 +1,2 @@
-# Rishi-s-demo
+# Rishi-demo
 This Is My  First Git Repository
