@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MK Grocery Store Bill</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f4f4f4;
+}
+
+.bill{
+    width:750px;
+    margin:20px auto;
+    background:white;
+    padding:20px;
+    border:2px solid black;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:2px solid black;
+    padding-bottom:10px;
+}
+
+.shop-name{
+    font-size:24px;
+    font-weight:bold;
+}
+
+.info{
+    margin-top:15px;
+}
+
+.info input{
+    width:200px;
+    border:1px solid #ccc;
+    padding:4px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+table, th, td{
+    border:1px solid black;
+}
+
+th, td{
+    padding:6px;
+    text-align:center;
+}
+
+input{
+    width:100%;
+    border:none;
+    text-align:center;
+}
+
+.summary{
+    width:300px;
+    margin-left:auto;
+    margin-top:20px;
+}
+
+.summary td{
+    text-align:right;
+    padding:5px;
+}
+
+.print-btn{
+    text-align:center;
+    margin-top:20px;
+}
+
+button{
+    padding:10px 20px;
+    font-size:16px;
+    background:green;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+@media print{
+    button{
+        display:none;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="bill">
+
+<div class="header">
+    <div>
+        <div class="shop-name">MK GROCERY STORE</div>
+        <div>Main Road, Nagpur</div>
+        <div>GST: 27ABCDE1234F1Z5</div>
+    </div>
+</div>
+
+<div class="info">
+Bill No: <input type="text">
+&nbsp;&nbsp;
+Date: <input type="text" id="date" readonly>
+<br><br>
+Customer Name: <input type="text">
+&nbsp;&nbsp;
+Phone: <input type="text">
+</div>
+
+<table id="billTable">
+<tr>
+<th>Sr No</th>
+<th>Item</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+</tr>
+
+<tr>
+<td>1</td>
+<td><input type="text" onkeydown="nextRow(event)"></td>
+<td><input type="number" oninput="calculate(this)"></td>
+<td><input type="number" oninput="calculate(this)"></td>
+<td class="rowTotal">0</td>
+</tr>
+
+</table>
+
+<table class="summary">
+
+<tr>
+<td>Sub Total:</td>
+<td id="subTotal">0</td>
+</tr>
+
+<tr>
+<td>GST (18%):</td>
+<td id="gstAmount">0</td>
+</tr>
+
+<tr>
+<td>Discount %:</td>
+<td><input type="number" id="discount" oninput="finalCalc()"></td>
+</tr>
+
+<tr>
+<td>Discount Amount:</td>
+<td id="discAmount">0</td>
+</tr>
+
+<tr>
+<td><b>Net Total:</b></td>
+<td id="netTotal"><b>0</b></td>
+</tr>
+
+</table>
+
+<div class="print-btn">
+<button onclick="window.print()">Print</button>
+</div>
+
+</div>
+
+<script>
+
+// Auto Date
+document.getElementById("date").value = new Date().toLocaleDateString();
+
+function calculate(el){
+    let row = el.parentElement.parentElement;
+    let qty = row.cells[2].children[0].value;
+    let price = row.cells[3].children[0].value;
+
+    let total = (qty*price) || 0;
+    row.cells[4].innerText = total;
+
+    updateSub();
+}
+
+function updateSub(){
+    let totals = document.getElementsByClassName("rowTotal");
+    let sum=0;
+    for(let i=0;i<totals.length;i++){
+        sum += parseFloat(totals[i].innerText) || 0;
+    }
+    document.getElementById("subTotal").innerText=sum;
+    finalCalc();
+}
+
+function finalCalc(){
+
+    let sub = parseFloat(document.getElementById("subTotal").innerText) || 0;
+
+    let gstAmt = sub * 0.18; // AUTO GST
+    document.getElementById("gstAmount").innerText = gstAmt.toFixed(2);
+
+    let disc = document.getElementById("discount").value;
+    let discAmt = (sub * disc)/100 || 0;
+    document.getElementById("discAmount").innerText = discAmt.toFixed(2);
+
+    let net = sub + gstAmt - discAmt;
+    document.getElementById("netTotal").innerText = net.toFixed(2);
+}
+
+function nextRow(e){
+    if(e.key === "Enter"){
+        let table = document.getElementById("billTable");
+        let rowCount = table.rows.length;
+
+        let newRow = table.insertRow();
+
+        newRow.innerHTML = `
+        <td>${rowCount}</td>
+        <td><input type="text" onkeydown="nextRow(event)"></td>
+        <td><input type="number" oninput="calculate(this)"></td>
+        <td><input type="number" oninput="calculate(this)"></td>
+        <td class="rowTotal">0</td>
+        `;
+    }
+}
+
+</script>
+
+</body>
+</html>
